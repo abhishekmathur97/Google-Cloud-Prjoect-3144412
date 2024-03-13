@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EV Project</title>
+    <link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+		/>
+		<link
+			type="text/css"
+			href="{{ url_for('static', path='/styles.css') }}"
+			rel="stylesheet"
+		/>
+		<script
+			type="module"
+			src="{{ url_for('static', path='/firebase-login.js') }}"
+		></script>
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+		
+<script>
+    document.getElementById('attributeSelect').addEventListener('change', function() {
+        var selectedAttribute = this.value;
+        if (selectedAttribute === 'year' || selectedAttribute === 'battery_size_kwh' || selectedAttribute === 'wltp_range_km' || selectedAttribute === 'cost' || selectedAttribute === 'power_kw') {
+            document.getElementById('maxInput').style.display = 'inline';
+        } else {
+            document.getElementById('maxInput').style.display = 'none';
+        }
+    });
+</script>
+		<style>
+			/* Custom styles here */
+		</style>
+	</head>
+</head>
+<body>
+    <h1>Welcome to the EV Project</h1>
+    <div id="login-box" {% if user_info %}hidden{% endif %}>
+        Email: <input type="email" id="email"><br/>
+        Password: <input type="password" id="password"><br/>
+        <button id="login">Login</button>
+        <button id="sign-up">Sign Up</button>
+    </div>
+    <button id="sign-out" {% if not user_info %}hidden{% endif %}>Sign out</button>
+
+    {% if user_info %}
+        <p>Hello, {{ user_info['email'] }}!</p>
+		<h3>Add a New Electric Vehicle</h3>
+    {% else %}
+        <p>Please log in or sign up.</p>
+    {% endif %}
+    
+	<div>
+    <a id="add-ev" {% if not user_info %}hidden {% endif %} href="/add-ev">Add EV</a>
+</div>
+	<h2>Search EVs</h2>
+	<form action="/" method="get">
+		<select name="attribute" id="attributeSelect">
+			<option value="name">Name</option>
+			<option value="manufacturer">Manufacturer</option>
+			<option value="year">Year</option>
+			<option value="battery_size_kwh">Battery Size (kWh)</option>
+			<option value="wltp_range_km">WLTP Range (km)</option>
+			<option value="cost">Cost</option>
+			<option value="power_kw">Power (kW)</option>
+		</select>
+		<input type="text" name="value" placeholder="Value" id="valueInput">
+		<input type="number" name="max" placeholder="Max Value" id="maxInput" style="display:none;">
+		<button type="submit">Search</button>
+	</form>
+	<h2>Select EVs for Comparison</h2>
+<form action="/compare-evs" method="get">
+    <label for="ev1">Select EV 1:</label>
+    <select name="ev1" id="ev1">
+        {% for ev in evs %}
+        <option value="{{ ev.name }}">{{ ev.name }}</option>
+        {% endfor %}
+    </select>
+    <label for="ev2">Select EV 2:</label>
+    <select name="ev2" id="ev2">
+        {% for ev in evs %}
+        <option value="{{ ev.name }}">{{ ev.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Compare</button>
+</form>
+
+    <h2>Available EVs</h2>
+    {% if evs %}
+    <div class="row">
+		{% for ev in evs %}
+		<div class="col-lg-3 col-md-6 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title"><a href="/ev/{{ ev.name }}">{{ ev.name }}</a></h5>
+					<p class="card-text">Manufacturer: {{ ev.manufacturer }}</p>
+					<p class="card-text">Year: {{ ev.year }}</p>
+					<p class="card-text">Battery size: {{ ev.battery_size_kwh }}</p>
+					<p class="card-text">WLTP RANGE: {{ ev.wltp_range_km }}</p>
+					<p class="card-text">Cost: {{ ev.cost }}</p>
+					<p class="card-text">Power Kw: {{ ev.power_kw }}</p>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+    {% else %}
+        <p>No EVs available.</p>
+    {% endif %}
+    
+</form>
+</body>
+</html>
